@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'theme.dart';
+
+
 
 void main() {
   runApp(const MyApp());
@@ -7,15 +10,20 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final theme = MaterialTheme(textTheme);
     return MaterialApp(
-       debugShowCheckedModeBanner: false,
-       home: AviaryScreen(),
+      debugShowCheckedModeBanner: false,
+      theme: theme.light(),
+      darkTheme: theme.dark(),
+      home: AviaryScreen(),
     );
   }
 }
+
 
 class AviaryScreen extends StatelessWidget {
   const AviaryScreen({super.key});
@@ -26,7 +34,6 @@ class AviaryScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Digital Aviary'),
         centerTitle: true,
-        backgroundColor: Colors.lightGreenAccent,
       ),
       body: ListView(
         padding: EdgeInsets.all(8),
@@ -34,10 +41,8 @@ class AviaryScreen extends StatelessWidget {
           Card(
             child: ListTile(
               leading: CircleAvatar(
-                backgroundColor: Colors.grey,
-                child: Icon(Icons.flutter_dash,color: Colors.teal,),
+                child: Icon(Icons.flutter_dash),
               ),
-              tileColor: Colors.white70,
               title: Text('Banana'),
               subtitle: Text('Budgeriar | age: 3 months'),
               trailing: Icon(Icons.arrow_forward_ios, size: 22),
@@ -46,10 +51,8 @@ class AviaryScreen extends StatelessWidget {
            Card(
             child: ListTile(
               leading: CircleAvatar(
-                backgroundColor: Colors.grey,
-                child: Icon(Icons.flutter_dash,color: Colors.orangeAccent,),
+                child: Icon(Icons.flutter_dash),
               ),
-              tileColor: Colors.white70,
               title: Text('Apple'),
               subtitle: Text('Cockatiel | age: 8 months'),
               trailing: Icon(Icons.arrow_forward_ios, size: 22),
@@ -58,10 +61,8 @@ class AviaryScreen extends StatelessWidget {
            Card(
             child: ListTile(
               leading: CircleAvatar(
-                backgroundColor: Colors.grey,
-                child: Icon(Icons.flutter_dash,color: Colors.green,),
+                child: Icon(Icons.flutter_dash,),
               ),
-              tileColor: Colors.white70,
               title: Text('Peach'),
               subtitle: Text('Ring Neck Parakeet | age: 2 years'),
               trailing: Icon(Icons.arrow_forward_ios, size: 22),
@@ -71,7 +72,6 @@ class AviaryScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Text('button working '),
-        backgroundColor: Colors.grey,
         child: Icon(Icons.add),
       ),
     );
