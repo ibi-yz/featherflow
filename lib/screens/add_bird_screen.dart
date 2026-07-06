@@ -37,6 +37,37 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      appBar: AppBar(title: Text('Add new Bird')),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'Name:'),
+            ),
+            const SizedBox(height: 22),
+            TextField(
+              controller: speciesController,
+              decoration: const InputDecoration(labelText: 'Species:'),
+            ),
+            const SizedBox(height: 22),
+            TextField(
+              controller: ageController,
+              decoration: const InputDecoration(labelText: 'Age:'),
+            ),
+            const SizedBox(height: 22),
+            TextField(
+              controller: genderController,
+              decoration: const InputDecoration(labelText: 'Gender:'),
+            ),
+            const SizedBox(height: 22),
+            //adding return to main menu button
+            ElevatedButton(onPressed: saveBird, child: Text('Save data')),
+          ],
+        ),
+      ),
+    );
   }
 }
