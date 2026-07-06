@@ -26,6 +26,15 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
   }
 
   void saveBird() {
+    if (nameController.text.trim().isEmpty ||
+        speciesController.text.trim().isEmpty ||
+        ageController.text.trim().isEmpty ||
+        genderController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Fields cannot be empty')));
+      return;
+    }
     final newBird = Bird(
       name: nameController.text,
       species: speciesController.text,
