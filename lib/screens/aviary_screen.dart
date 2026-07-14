@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:featherflow/models/bird.dart';
 import 'package:featherflow/screens/add_bird_screen.dart';
+import 'bird_detail_screen.dart';
 
 class AviaryScreen extends StatefulWidget {
   const AviaryScreen({super.key});
@@ -77,24 +78,28 @@ class _AviaryScreenState extends State<AviaryScreen> {
               itemCount: birds.length,
               itemBuilder: (context, index) {
                 final bird = birds[index];
-                return Card(
-                  margin: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  elevation: 1,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  color: Theme.of(context).colorScheme.surfaceContainerLow,
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 4,
+                return InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () => BirdDetailsSheet.show(context, bird),
+                  child: Card(
+                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    elevation: 1,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    leading: CircleAvatar(child: Icon(Icons.flutter_dash)),
-                    title: Text(bird.name),
-                    subtitle: Text(
-                      '${bird.species} | ${bird.age} | ${bird.gender}',
+                    color: Theme.of(context).colorScheme.surfaceContainerLow,
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 4,
+                      ),
+                      leading: CircleAvatar(child: Icon(Icons.flutter_dash)),
+                      title: Text(bird.name),
+                      subtitle: Text(
+                        '${bird.species} | ${bird.age} | ${bird.gender}',
+                      ),
+                      trailing: Icon(Icons.arrow_forward_ios, size: 16),
                     ),
-                    trailing: Icon(Icons.arrow_forward_ios, size: 16),
                   ),
                 );
               },
