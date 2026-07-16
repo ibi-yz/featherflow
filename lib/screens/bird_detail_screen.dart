@@ -3,7 +3,14 @@ import 'package:featherflow/models/bird.dart';
 
 class BirdDetailsSheet extends StatelessWidget {
   final Bird bird;
-  const BirdDetailsSheet({super.key, required this.bird});
+  final VoidCallback onDelete;
+  final VoidCallback onEdit;
+  const BirdDetailsSheet({
+    super.key,
+    required this.bird,
+    required this.onDelete,
+    required this.onEdit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +47,7 @@ class BirdDetailsSheet extends StatelessWidget {
                   onPressed: () {
                     //later add delete option
                     Navigator.pop(context);
+                    onDelete();
                   },
                   icon: Icon(Icons.delete),
                   label: Text('Delete'),
@@ -49,10 +57,12 @@ class BirdDetailsSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
+              const SizedBox(width: 16),
               Expanded(
                 child: FilledButton.icon(
                   onPressed: () {
-                    //later add edit bird option
+                    Navigator.pop(context);
+                    onEdit();
                   },
                   label: Text("Edit"),
                   icon: Icon(Icons.edit),
@@ -65,14 +75,19 @@ class BirdDetailsSheet extends StatelessWidget {
     );
   }
 
-  static void show(BuildContext context, Bird bird) {
+  static void show(
+    BuildContext context, {
+    required Bird bird,
+    required VoidCallback onDelete,
+    required VoidCallback onEdit,
+  }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       builder: (_) => SizedBox(
         height: MediaQuery.of(context).size.height * 0.75,
-        child: BirdDetailsSheet(bird: bird),
+        child: BirdDetailsSheet(bird: bird, onDelete: onDelete, onEdit: onEdit),
       ),
     );
   }

@@ -11,16 +11,71 @@ class AviaryScreen extends StatefulWidget {
 }
 
 class _AviaryScreenState extends State<AviaryScreen> {
-  final List<Bird> birds = [
-    /*Bird(name: 'Banana', species: 'Budgie', age: '3 months', gender: 'male'),
-    Bird(name: 'Apple', species: 'Cockatiel', age: '1 year', gender: 'Female'),
-    Bird(
-      name: 'Einstein',
-      species: "Congo African Grey",
-      age: '7 year',
-      gender: 'male',
-    )*/
-  ];
+  final List<Bird> birds = [];
+  void _showEditDialog(Bird bird) {
+    final nameController = TextEditingController(text: bird.name);
+    final speciesController = TextEditingController(text: bird.species);
+    final ageController = TextEditingController(text: bird.age.toString());
+    final genderController = TextEditingController(text: bird.gender);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        scrollable: true,
+        title: const Text("Edit Bird", style: TextStyle(fontSize: 24)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              //keyboardType: TextInputType.name,
+              decoration: const InputDecoration(labelText: 'Name'),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: speciesController,
+              //keyboardType: TextInputType.name,
+              decoration: const InputDecoration(labelText: 'Species'),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: ageController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Age'),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: genderController,
+              //keyboardType: TextInputType.name,
+              decoration: const InputDecoration(labelText: 'Gender'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          FilledButton(
+            onPressed: () {
+              int index = birds.indexOf(bird);
+              Bird updated = Bird(
+                name: nameController.text,
+                species: speciesController.text,
+                age: ageController.text,
+                gender: genderController.text,
+              );
+              setState(() {
+                birds[index] = updated;
+              });
+              Navigator.pop(context);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +135,18 @@ class _AviaryScreenState extends State<AviaryScreen> {
                 final bird = birds[index];
                 return InkWell(
                   borderRadius: BorderRadius.circular(16),
-                  onTap: () => BirdDetailsSheet.show(context, bird),
+                  onTap: () => BirdDetailsSheet.show(
+                    context,
+                    bird: bird,
+                    onDelete: () {
+                      setState(() {
+                        birds.remove(bird);
+                      });
+                    },
+                    onEdit: () {
+                      _showEditDialog(bird);
+                    },
+                  ),
                   child: Card(
                     margin: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                     elevation: 1,
