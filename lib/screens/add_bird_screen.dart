@@ -13,7 +13,8 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
   final nameController = TextEditingController();
   final speciesController = TextEditingController();
   final ageController = TextEditingController();
-  final genderController = TextEditingController();
+  String? selectedGender;
+  final genders = ['Male', 'Female', 'Unknown'];
 
   //disposing variables so crash doesent happens
   @override
@@ -21,7 +22,6 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
     nameController.dispose();
     speciesController.dispose();
     ageController.dispose();
-    genderController.dispose();
     super.dispose();
   }
 
@@ -29,7 +29,7 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
     if (nameController.text.trim().isEmpty ||
         speciesController.text.trim().isEmpty ||
         ageController.text.trim().isEmpty ||
-        genderController.text.trim().isEmpty) {
+        selectedGender == null) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Fields cannot be empty')));
@@ -39,7 +39,7 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
       name: nameController.text,
       species: speciesController.text,
       age: ageController.text,
-      gender: genderController.text,
+      gender: selectedGender!,
     );
     Navigator.pop(context, newBird);
   }
@@ -67,9 +67,13 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
               decoration: const InputDecoration(labelText: 'Age:'),
             ),
             const SizedBox(height: 22),
-            TextField(
-              controller: genderController,
-              decoration: const InputDecoration(labelText: 'Gender:'),
+            DropdownButtonFormField<String>(
+              value: selectedGender,
+              decoration: const InputDecoration(labelText: 'Gender'),
+              items: genders
+                  .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                  .toList(),
+              onChanged: (val) => setState(() => selectedGender = val),
             ),
             const SizedBox(height: 22),
             //adding return to main menu button
