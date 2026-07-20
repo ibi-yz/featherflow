@@ -12,23 +12,25 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
   //labelling controllers
   final nameController = TextEditingController();
   final speciesController = TextEditingController();
-  final ageController = TextEditingController();
+  final ageNumberController = TextEditingController();
   String? selectedGender;
+  String? selectedUnit;
   final genders = ['Male', 'Female', 'Unknown'];
+  final units = ['Days', "Months", "Years"];
 
   //disposing variables so crash doesent happens
   @override
   void dispose() {
     nameController.dispose();
     speciesController.dispose();
-    ageController.dispose();
+    ageNumberController.dispose();
     super.dispose();
   }
 
   void saveBird() {
     if (nameController.text.trim().isEmpty ||
         speciesController.text.trim().isEmpty ||
-        ageController.text.trim().isEmpty ||
+        ageNumberController.text.trim().isEmpty ||
         selectedGender == null) {
       ScaffoldMessenger.of(
         context,
@@ -38,7 +40,7 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
     final newBird = Bird(
       name: nameController.text,
       species: speciesController.text,
-      age: ageController.text,
+      age: ageNumberController.text,
       gender: selectedGender!,
     );
     Navigator.pop(context, newBird);
@@ -62,9 +64,29 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
               decoration: const InputDecoration(labelText: 'Species:'),
             ),
             const SizedBox(height: 22),
-            TextField(
-              controller: ageController,
-              decoration: const InputDecoration(labelText: 'Age:'),
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: TextField(
+                    controller: ageNumberController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: "Age;"),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  flex: 2,
+                  child: DropdownButtonFormField<String>(
+                    value: selectedUnit,
+                    decoration: const InputDecoration(labelText: 'Unit:'),
+                    items: units
+                        .map((u) => DropdownMenuItem(value: u, child: Text(u)))
+                        .toList(),
+                    onChanged: (val) => setState(() => selectedUnit = val),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 22),
             DropdownButtonFormField<String>(
