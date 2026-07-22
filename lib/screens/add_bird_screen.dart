@@ -40,7 +40,7 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
     final newBird = Bird(
       name: nameController.text,
       species: speciesController.text,
-      age: ageNumberController.text,
+      age: '${ageNumberController.text.trim()} $selectedUnit',
       gender: selectedGender!,
     );
     Navigator.pop(context, newBird);

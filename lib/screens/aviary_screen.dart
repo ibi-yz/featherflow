@@ -15,9 +15,19 @@ class _AviaryScreenState extends State<AviaryScreen> {
   void _showEditDialog(Bird bird) {
     final nameController = TextEditingController(text: bird.name);
     final speciesController = TextEditingController(text: bird.species);
-    final ageController = TextEditingController(text: bird.age.toString());
-    final genderController = TextEditingController(text: bird.gender);
+    final ageNumberController = TextEditingController();
+    String? selectedGender = bird.gender;
+    String? selectedUnit;
+    final genders = ['Male', 'Female', 'Unknown'];
+    final units = ['Days', "Months", "Years"];
 
+    final parts = bird.age.trim().split(' ');
+    if (parts.length > 1 && units.contains(parts.last)) {
+      selectedUnit = parts.last;
+      ageNumberController.text = parts.sublist(0, parts.length - 1).join(' ');
+    } else {
+      ageNumberController.text = bird.age;
+    }
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -39,15 +49,18 @@ class _AviaryScreenState extends State<AviaryScreen> {
             ),
             const SizedBox(height: 16),
             TextField(
-              controller: ageController,
+              controller: ageNumberController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(labelText: 'Age'),
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: genderController,
-              //keyboardType: TextInputType.name,
+            DropdownButtonFormField<String>(
+              value: selectedGender,
               decoration: const InputDecoration(labelText: 'Gender'),
+              items: genders
+                  .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                  .toList(),
+              onChanged: (val) => setState(() => selectedGender = val),
             ),
           ],
         ),
@@ -62,8 +75,9 @@ class _AviaryScreenState extends State<AviaryScreen> {
               Bird updated = Bird(
                 name: nameController.text,
                 species: speciesController.text,
-                age: ageController.text,
-                gender: genderController.text,
+                age: '${ageNumberController.text.trim()} ${selectedUnit ?? ''}'
+                    .trim(),
+                gender: selectedGender!,
               );
               setState(() {
                 birds[index] = updated;
