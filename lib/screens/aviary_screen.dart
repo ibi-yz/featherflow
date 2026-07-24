@@ -48,11 +48,31 @@ class _AviaryScreenState extends State<AviaryScreen> {
               decoration: const InputDecoration(labelText: 'Species'),
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: ageNumberController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Age'),
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: TextField(
+                    controller: ageNumberController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Age'),
+                  ),
+                ),
+                const SizedBox(width: 2),
+                Expanded(
+                  flex: 2,
+                  child: DropdownButtonFormField<String>(
+                    value: selectedUnit,
+                    decoration: const InputDecoration(labelText: 'Age'),
+                    items: units
+                        .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                        .toList(),
+                    onChanged: (val) => setState(() => selectedUnit = val),
+                  ),
+                ),
+              ],
             ),
+
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: selectedGender,
