@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:featherflow/models/bird.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddBirdScreen extends StatefulWidget {
   const AddBirdScreen({super.key});
@@ -15,6 +16,7 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
   final ageNumberController = TextEditingController();
   String? selectedGender;
   String? selectedUnit;
+  String? pickedImagePath;
   final genders = ['Male', 'Female', 'Unknown'];
   final units = ['Days', "Months", "Years"];
 
@@ -25,6 +27,15 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
     speciesController.dispose();
     ageNumberController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final XFile? image = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+    if (image != null) {
+      setState(() => pickedImagePath = image.path);
+    }
   }
 
   void saveBird() {
@@ -42,6 +53,7 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
       species: speciesController.text,
       age: '${ageNumberController.text.trim()} $selectedUnit',
       gender: selectedGender!,
+      imagePath: pickedImagePath,
     );
     Navigator.pop(context, newBird);
   }

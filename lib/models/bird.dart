@@ -5,11 +5,13 @@ class Bird {
   final String species;
   final String age;
   final String gender;
+  String? imagePath;
 
-  const Bird({
+  Bird({
     required this.name,
     required this.species,
     required this.age,
     required this.gender,
+    this.imagePath,
   });
 }

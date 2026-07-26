@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:featherflow/models/bird.dart';
 import 'package:featherflow/screens/add_bird_screen.dart';
 import 'bird_detail_screen.dart';
+import 'dart:io';
 
 class AviaryScreen extends StatefulWidget {
   const AviaryScreen({super.key});
@@ -30,83 +31,88 @@ class _AviaryScreenState extends State<AviaryScreen> {
     }
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        scrollable: true,
-        title: const Text("Edit Bird", style: TextStyle(fontSize: 24)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              //keyboardType: TextInputType.name,
-              decoration: const InputDecoration(labelText: 'Name'),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: speciesController,
-              //keyboardType: TextInputType.name,
-              decoration: const InputDecoration(labelText: 'Species'),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: TextField(
-                    controller: ageNumberController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Age'),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          scrollable: true,
+          title: const Text("Edit Bird", style: TextStyle(fontSize: 24)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                //keyboardType: TextInputType.name,
+                decoration: const InputDecoration(labelText: 'Name'),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: speciesController,
+                //keyboardType: TextInputType.name,
+                decoration: const InputDecoration(labelText: 'Species'),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: TextField(
+                      controller: ageNumberController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'Age'),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 2),
-                Expanded(
-                  flex: 2,
-                  child: DropdownButtonFormField<String>(
-                    value: selectedUnit,
-                    decoration: const InputDecoration(labelText: 'Age'),
-                    items: units
-                        .map((g) => DropdownMenuItem(value: g, child: Text(g)))
-                        .toList(),
-                    onChanged: (val) => setState(() => selectedUnit = val),
+                  const SizedBox(width: 2),
+                  Expanded(
+                    flex: 2,
+                    child: DropdownButtonFormField<String>(
+                      value: selectedUnit,
+                      decoration: const InputDecoration(labelText: 'Age'),
+                      items: units
+                          .map(
+                            (g) => DropdownMenuItem(value: g, child: Text(g)),
+                          )
+                          .toList(),
+                      onChanged: (val) => setState(() => selectedUnit = val),
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
 
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value: selectedGender,
-              decoration: const InputDecoration(labelText: 'Gender'),
-              items: genders
-                  .map((g) => DropdownMenuItem(value: g, child: Text(g)))
-                  .toList(),
-              onChanged: (val) => setState(() => selectedGender = val),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: selectedGender,
+                decoration: const InputDecoration(labelText: 'Gender'),
+                items: genders
+                    .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                    .toList(),
+                onChanged: (val) => setState(() => selectedGender = val),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            FilledButton(
+              onPressed: () {
+                int index = birds.indexOf(bird);
+                Bird updated = Bird(
+                  name: nameController.text,
+                  species: speciesController.text,
+                  age:
+                      '${ageNumberController.text.trim()} ${selectedUnit ?? ''}'
+                          .trim(),
+                  gender: selectedGender!,
+                );
+                setState(() {
+                  birds[index] = updated;
+                });
+                Navigator.pop(context);
+              },
+              child: const Text('Save'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-          FilledButton(
-            onPressed: () {
-              int index = birds.indexOf(bird);
-              Bird updated = Bird(
-                name: nameController.text,
-                species: speciesController.text,
-                age: '${ageNumberController.text.trim()} ${selectedUnit ?? ''}'
-                    .trim(),
-                gender: selectedGender!,
-              );
-              setState(() {
-                birds[index] = updated;
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('Save'),
-          ),
-        ],
       ),
     );
   }
@@ -182,23 +188,61 @@ class _AviaryScreenState extends State<AviaryScreen> {
                     },
                   ),
                   child: Card(
-                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    margin: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                     elevation: 1,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                     color: Theme.of(context).colorScheme.surfaceContainerLow,
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 4,
-                      ),
-                      leading: CircleAvatar(child: Icon(Icons.flutter_dash)),
-                      title: Text(bird.name),
-                      subtitle: Text(
-                        '${bird.species} | ${bird.age} | ${bird.gender}',
-                      ),
-                      trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 140,
+                            child: bird.imagePath != null
+                                ? Image.file(
+                                    File(bird.imagePath!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : Container(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primaryContainer,
+                                    child: Icon(
+                                      Icons.flutter_dash,
+                                      size: 60,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                          ),
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                bird.name,
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${bird.species} | ${bird.age} | ${bird.gender}',
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 );
@@ -207,7 +251,6 @@ class _AviaryScreenState extends State<AviaryScreen> {
           ),
         ],
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final newBird = await Navigator.push<Bird>(
