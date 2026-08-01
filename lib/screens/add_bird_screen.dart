@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:featherflow/models/bird.dart';
 import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class AddBirdScreen extends StatefulWidget {
   const AddBirdScreen({super.key});
@@ -64,55 +65,102 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
       appBar: AppBar(title: Text('Add new Bird')),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: 'Name:'),
-            ),
-            const SizedBox(height: 22),
-            TextField(
-              controller: speciesController,
-              decoration: const InputDecoration(labelText: 'Species:'),
-            ),
-            const SizedBox(height: 22),
-            Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: TextField(
-                    controller: ageNumberController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: "Age;"),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  width: double.infinity,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(16),
                   ),
+                  child: pickedImagePath != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.file(
+                            File(pickedImagePath!),
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.add_a_photo,
+                                size: 30,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onPrimaryContainer,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Tap to add a photo',
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimaryContainer,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  flex: 2,
-                  child: DropdownButtonFormField<String>(
-                    value: selectedUnit,
-                    decoration: const InputDecoration(labelText: 'Unit:'),
-                    items: units
-                        .map((u) => DropdownMenuItem(value: u, child: Text(u)))
-                        .toList(),
-                    onChanged: (val) => setState(() => selectedUnit = val),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: 'Name:'),
+              ),
+              const SizedBox(height: 22),
+              TextField(
+                controller: speciesController,
+                decoration: const InputDecoration(labelText: 'Species:'),
+              ),
+              const SizedBox(height: 22),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: TextField(
+                      controller: ageNumberController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: "Age;"),
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 22),
-            DropdownButtonFormField<String>(
-              value: selectedGender,
-              decoration: const InputDecoration(labelText: 'Gender'),
-              items: genders
-                  .map((g) => DropdownMenuItem(value: g, child: Text(g)))
-                  .toList(),
-              onChanged: (val) => setState(() => selectedGender = val),
-            ),
-            const SizedBox(height: 22),
-            //adding return to main menu button
-            ElevatedButton(onPressed: saveBird, child: Text('Save data')),
-          ],
+                  const SizedBox(width: 16),
+                  Expanded(
+                    flex: 2,
+                    child: DropdownButtonFormField<String>(
+                      value: selectedUnit,
+                      decoration: const InputDecoration(labelText: 'Unit:'),
+                      items: units
+                          .map(
+                            (u) => DropdownMenuItem(value: u, child: Text(u)),
+                          )
+                          .toList(),
+                      onChanged: (val) => setState(() => selectedUnit = val),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 22),
+              DropdownButtonFormField<String>(
+                value: selectedGender,
+                decoration: const InputDecoration(labelText: 'Gender'),
+                items: genders
+                    .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                    .toList(),
+                onChanged: (val) => setState(() => selectedGender = val),
+              ),
+              const SizedBox(height: 22),
+              //adding return to main menu button
+              ElevatedButton(onPressed: saveBird, child: Text('Save data')),
+            ],
+          ),
         ),
       ),
     );
