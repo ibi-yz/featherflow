@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:featherflow/models/bird.dart';
+import 'dart:io';
 
 class BirdDetailsSheet extends StatelessWidget {
   final Bird bird;
@@ -23,12 +24,21 @@ class BirdDetailsSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 300,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              color: ColorScheme.primaryContainer,
+          ClipRRect(
+            borderRadius: BorderRadiusGeometry.circular(24),
+            child: SizedBox(
+              height: 300,
+              width: double.infinity,
+              child: bird.imagePath != null
+                  ? Image.file(File(bird.imagePath!), fit: BoxFit.cover)
+                  : Container(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      child: Icon(
+                        Icons.flutter_dash,
+                        size: 60,
+                        color: Colors.white,
+                      ),
+                    ),
             ),
           ),
           const SizedBox(height: 16),
