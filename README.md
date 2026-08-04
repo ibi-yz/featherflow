@@ -61,3 +61,41 @@ flutter pub get
 
 # Run the app
 flutter run
+```
+
+### Build for Android
+```bash
+flutter build apk --release
+```
+
+---
+
+## 🏗️ Architecture
+
+FeatherFlow follows Flutter's reactive widget architecture with:
+- **StatelessWidget** for static UI components
+- **StatefulWidget** with `StatefulBuilder` for isolated dialog state
+- **Material 3** theming via `ThemeData` color schemes
+- **Local file storage** via `dart:io` for image persistence
+
+---
+
+## 🤝 Contributing
+
+FeatherFlow is GPL v3 licensed. Contributions welcome!
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the **GNU General Public License v3.0** - see the [LICENSE](LICENSE) file for details.
+
+---
+
+**Made with ❤️ for bird breeders worldwide**
