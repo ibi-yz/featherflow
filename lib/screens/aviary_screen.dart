@@ -4,6 +4,7 @@ import 'package:featherflow/screens/add_bird_screen.dart';
 import 'bird_detail_screen.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:hive/hive.dart';
 
 class AviaryScreen extends StatefulWidget {
   const AviaryScreen({super.key});
@@ -13,7 +14,14 @@ class AviaryScreen extends StatefulWidget {
 }
 
 class _AviaryScreenState extends State<AviaryScreen> {
-  final List<Bird> birds = [];
+  late Box<Bird> birdBox;
+
+  @override
+  void initState() {
+    super.initState();
+    birdBox = Hive.box<Bird>('Birds');
+  }
+
   void _showEditDialog(Bird bird) {
     final nameController = TextEditingController(text: bird.name);
     final speciesController = TextEditingController(text: bird.species);
@@ -154,7 +162,8 @@ class _AviaryScreenState extends State<AviaryScreen> {
               ),
               FilledButton(
                 onPressed: () {
-                  int index = birds.indexOf(bird);
+                  final birdslist = birdBox.values.toList();
+                  int index = birdslist.indexOf(bird);
                   Bird updated = Bird(
                     name: nameController.text,
                     species: speciesController.text,
@@ -164,9 +173,8 @@ class _AviaryScreenState extends State<AviaryScreen> {
                     gender: selectedGender!,
                     imagePath: pickedImagePath,
                   );
-                  setState(() {
-                    birds[index] = updated;
-                  });
+                  birdBox.putAt(index, updated);
+                  setState(() {});
                   Navigator.pop(context);
                 },
                 child: const Text('Save'),
@@ -180,6 +188,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final birds = birdBox.values.toList();
     return Scaffold(
       /*appBar: AppBar(
         title: Text(
@@ -240,9 +249,8 @@ class _AviaryScreenState extends State<AviaryScreen> {
                     context,
                     bird: bird,
                     onDelete: () {
-                      setState(() {
-                        birds.remove(bird);
-                      });
+                      birdBox.deleteAt(index);
+                      setState(() {});
                     },
                     onEdit: () {
                       _showEditDialog(bird);
@@ -319,9 +327,8 @@ class _AviaryScreenState extends State<AviaryScreen> {
             MaterialPageRoute(builder: (context) => const AddBirdScreen()),
           );
           if (newBird != null) {
-            setState(() {
-              birds.add(newBird);
-            });
+            birdBox.add(newBird);
+            setState(() {});
           }
         },
         child: Icon(Icons.add),
