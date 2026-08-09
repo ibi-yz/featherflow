@@ -6,6 +6,7 @@ import 'screens/aviary_screen.dart';
 import 'package:hive/hive.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Hive.registerAdapter(BirdAdapter());
   await Hive.openBox<Bird>('Birds');
