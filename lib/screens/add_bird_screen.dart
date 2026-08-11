@@ -14,19 +14,29 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
   //labelling controllers
   final nameController = TextEditingController();
   final speciesController = TextEditingController();
-  final ageNumberController = TextEditingController();
   String? selectedGender;
-  String? selectedUnit;
   String? pickedImagePath;
   final genders = ['Male', 'Female', 'Unknown'];
-  final units = ['Days', "Months", "Years"];
+  DateTime? pickedHatchDate;
+
+  Future<void> _pickedHatchDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: pickedHatchDate ?? now,
+      firstDate: DateTime(now.year - 100, 1, 1),
+      lastDate: now,
+    );
+    if (picked != null) {
+      setState(() => pickedHatchDate = picked);
+    }
+  }
 
   //disposing variables so crash doesent happens
   @override
   void dispose() {
     nameController.dispose();
     speciesController.dispose();
-    ageNumberController.dispose();
     super.dispose();
   }
 
@@ -42,7 +52,6 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
   void saveBird() {
     if (nameController.text.trim().isEmpty ||
         speciesController.text.trim().isEmpty ||
-        ageNumberController.text.trim().isEmpty ||
         selectedGender == null) {
       ScaffoldMessenger.of(
         context,
@@ -52,9 +61,9 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
     final newBird = Bird(
       name: nameController.text,
       species: speciesController.text,
-      age: '${ageNumberController.text.trim()} $selectedUnit',
       gender: selectedGender!,
       imagePath: pickedImagePath,
+      hatchDate: pickedHatchDate,
     );
     Navigator.pop(context, newBird);
   }
@@ -121,31 +130,35 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
                 decoration: const InputDecoration(labelText: 'Species:'),
               ),
               const SizedBox(height: 22),
-              Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: TextField(
-                      controller: ageNumberController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: "Age;"),
+              InkWell(
+                onTap: _pickedHatchDate,
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant,
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    flex: 2,
-                    child: DropdownButtonFormField<String>(
-                      value: selectedUnit,
-                      decoration: const InputDecoration(labelText: 'Unit:'),
-                      items: units
-                          .map(
-                            (u) => DropdownMenuItem(value: u, child: Text(u)),
-                          )
-                          .toList(),
-                      onChanged: (val) => setState(() => selectedUnit = val),
-                    ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_month,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 16),
+                      Text(
+                        pickedHatchDate == null
+                            ? 'Tap to set date of birth'
+                            : 'Born: ${pickedHatchDate!.day}/${pickedHatchDate!.month}/${pickedHatchDate!.year}',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
               const SizedBox(height: 22),
               DropdownButtonFormField<String>(

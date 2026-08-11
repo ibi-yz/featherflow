@@ -25,20 +25,11 @@ class _AviaryScreenState extends State<AviaryScreen> {
   void _showEditDialog(Bird bird) {
     final nameController = TextEditingController(text: bird.name);
     final speciesController = TextEditingController(text: bird.species);
-    final ageNumberController = TextEditingController();
     String? selectedGender = bird.gender;
     String? selectedUnit;
     String? pickedImagePath = bird.imagePath;
+    DateTime? pickedHatchDate = bird.hatchDate;
     final genders = ['Male', 'Female', 'Unknown'];
-    final units = ['Days', "Months", "Years"];
-
-    final parts = bird.age.trim().split(' ');
-    if (parts.length > 1 && units.contains(parts.last)) {
-      selectedUnit = parts.last;
-      ageNumberController.text = parts.sublist(0, parts.length - 1).join(' ');
-    } else {
-      ageNumberController.text = bird.age;
-    }
 
     showDialog(
       context: context,
@@ -50,6 +41,19 @@ class _AviaryScreenState extends State<AviaryScreen> {
             );
             if (image != null) {
               setDialogState(() => pickedImagePath = image.path);
+            }
+          }
+
+          Future<void> _pickedHatchDate() async {
+            final now = DateTime.now();
+            final picked = await showDatePicker(
+              context: context,
+              initialDate: pickedHatchDate ?? now,
+              firstDate: DateTime(now.year - 100, 1, 1),
+              lastDate: now,
+            );
+            if (picked != null) {
+              setState(() => pickedHatchDate = picked);
             }
           }
 
@@ -115,34 +119,36 @@ class _AviaryScreenState extends State<AviaryScreen> {
                   decoration: const InputDecoration(labelText: 'Species'),
                 ),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: TextField(
-                        controller: ageNumberController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(labelText: 'Age'),
+                InkWell(
+                  onTap: _pickedHatchDate,
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outlineVariant,
                       ),
                     ),
-                    const SizedBox(width: 2),
-                    Expanded(
-                      flex: 2,
-                      child: DropdownButtonFormField<String>(
-                        value: selectedUnit,
-                        decoration: const InputDecoration(labelText: 'Age'),
-                        items: units
-                            .map(
-                              (g) => DropdownMenuItem(value: g, child: Text(g)),
-                            )
-                            .toList(),
-                        onChanged: (val) =>
-                            setDialogState(() => selectedUnit = val),
-                      ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_month,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          pickedHatchDate == null
+                              ? 'Tap to set date of birth'
+                              : 'Born: ${pickedHatchDate!.day}/${pickedHatchDate!.month}/${pickedHatchDate!.year}',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: selectedGender,
@@ -167,9 +173,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
                   Bird updated = Bird(
                     name: nameController.text,
                     species: speciesController.text,
-                    age:
-                        '${ageNumberController.text.trim()} ${selectedUnit ?? ''}'
-                            .trim(),
+                    hatchDate: pickedHatchDate,
                     gender: selectedGender!,
                     imagePath: pickedImagePath,
                   );
@@ -190,17 +194,6 @@ class _AviaryScreenState extends State<AviaryScreen> {
   Widget build(BuildContext context) {
     final birds = birdBox.values.toList();
     return Scaffold(
-      /*appBar: AppBar(
-        title: Text(
-          'DIGITAL AVIARY',
-          style: TextStyle(
-            fontFamily: 'Unique',
-            fontSize: 64,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        centerTitle: true,
-      )*/
       body: Column(
         children: [
           Container(
@@ -300,7 +293,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${bird.species} | ${bird.age} | ${bird.gender}',
+                                '${bird.species} | ${bird.displayAge} | ${bird.gender}',
                                 style: Theme.of(context).textTheme.bodyMedium
                                     ?.copyWith(
                                       color: Theme.of(

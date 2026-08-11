@@ -44,7 +44,7 @@ class BirdDetailsSheet extends StatelessWidget {
           const SizedBox(height: 16),
           Text(bird.name, style: TextTheme.headlineMedium),
           Text(
-            '${bird.species} | ${bird.age} | ${bird.gender}',
+            '${bird.species} | ${bird.displayAge} | ${bird.gender}',
             style: TextTheme.bodyMedium?.copyWith(
               color: ColorScheme.onSurfaceVariant,
             ),
