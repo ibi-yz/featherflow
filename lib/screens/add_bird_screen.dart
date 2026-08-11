@@ -81,7 +81,7 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
                 onTap: _pickImage,
                 child: Container(
                   width: double.infinity,
-                  height: 70,
+                  height: pickedImagePath != null ? 200 : 70,
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(16),

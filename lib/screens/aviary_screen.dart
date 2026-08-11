@@ -53,7 +53,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
               lastDate: now,
             );
             if (picked != null) {
-              setState(() => pickedHatchDate = picked);
+              setDialogState(() => pickedHatchDate = picked);
             }
           }
 
@@ -68,17 +68,19 @@ class _AviaryScreenState extends State<AviaryScreen> {
                   onTap: _pickImage,
                   child: Container(
                     width: double.infinity,
-                    height: 70,
+                    height: pickedImagePath != null ? 200 : 70,
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: pickedImagePath != null
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
+                        ? ColoredBox(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
                             child: Image.file(
                               File(pickedImagePath!),
-                              fit: BoxFit.cover,
+                              fit: BoxFit.contain,
                             ),
                           )
                         : Center(
@@ -263,7 +265,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
                           borderRadius: BorderRadius.circular(16),
                           child: SizedBox(
                             width: double.infinity,
-                            height: 140,
+                            height: 220,
                             child: bird.imagePath != null
                                 ? Image.file(
                                     File(bird.imagePath!),

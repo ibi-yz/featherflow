@@ -30,7 +30,15 @@ class BirdDetailsSheet extends StatelessWidget {
               height: 300,
               width: double.infinity,
               child: bird.imagePath != null
-                  ? Image.file(File(bird.imagePath!), fit: BoxFit.cover)
+                  ? ColoredBox(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
+                      child: Image.file(
+                        File(bird.imagePath!),
+                        fit: BoxFit.contain,
+                      ),
+                    )
                   : Container(
                       color: Theme.of(context).colorScheme.primaryContainer,
                       child: Icon(
