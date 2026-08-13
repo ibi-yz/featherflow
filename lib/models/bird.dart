@@ -16,6 +16,10 @@ class Bird {
   final String gender;
   @HiveField(4)
   String? imagePath;
+  @HiveField(6)
+  String? cageNumber;
+  @HiveField(7)
+  String? bandNumber;
 
   Bird({
     required this.name,
@@ -23,6 +27,8 @@ class Bird {
     this.hatchDate,
     required this.gender,
     this.imagePath,
+    this.cageNumber,
+    this.bandNumber,
   });
 
   String get displayAge {

@@ -1,3 +1,4 @@
+import 'package:featherflow/data/species_presets.dart';
 import 'package:flutter/material.dart';
 import 'package:featherflow/models/bird.dart';
 import 'package:image_picker/image_picker.dart';
@@ -13,7 +14,9 @@ class AddBirdScreen extends StatefulWidget {
 class _AddBirdScreenState extends State<AddBirdScreen> {
   //labelling controllers
   final nameController = TextEditingController();
-  final speciesController = TextEditingController();
+  final cageController = TextEditingController();
+  final bandController = TextEditingController();
+  TextEditingController? speciesController;
   String? selectedGender;
   String? pickedImagePath;
   final genders = ['Male', 'Female', 'Unknown'];
@@ -36,7 +39,8 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
   @override
   void dispose() {
     nameController.dispose();
-    speciesController.dispose();
+    cageController.dispose();
+    bandController.dispose();
     super.dispose();
   }
 
@@ -50,8 +54,9 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
   }
 
   void saveBird() {
+    final speciesText = speciesController?.text.trim() ?? '';
     if (nameController.text.trim().isEmpty ||
-        speciesController.text.trim().isEmpty ||
+        speciesText.isEmpty ||
         selectedGender == null) {
       ScaffoldMessenger.of(
         context,
@@ -60,10 +65,16 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
     }
     final newBird = Bird(
       name: nameController.text,
-      species: speciesController.text,
+      species: speciesText,
       gender: selectedGender!,
       imagePath: pickedImagePath,
       hatchDate: pickedHatchDate,
+      cageNumber: cageController.text.trim().isEmpty
+          ? null
+          : cageController.text.trim(),
+      bandNumber: bandController.text.trim().isEmpty
+          ? null
+          : bandController.text.trim(),
     );
     Navigator.pop(context, newBird);
   }
@@ -125,9 +136,23 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
                 decoration: const InputDecoration(labelText: 'Name:'),
               ),
               const SizedBox(height: 22),
-              TextField(
-                controller: speciesController,
-                decoration: const InputDecoration(labelText: 'Species:'),
+              Autocomplete<String>(
+                optionsBuilder: (TextEditingValue value) {
+                  if (value.text.isEmpty) return speciesPresets;
+                  return speciesPresets.where(
+                    (s) => s.toLowerCase().contains(value.text.toLowerCase()),
+                  );
+                },
+                fieldViewBuilder:
+                    (context, controller, focusNode, onFieldSubmitted) {
+                      speciesController = controller;
+                      return TextField(
+                        controller: controller,
+                        focusNode: focusNode,
+                        onSubmitted: (value) => onFieldSubmitted(),
+                        decoration: const InputDecoration(labelText: 'Species'),
+                      );
+                    },
               ),
               const SizedBox(height: 22),
               InkWell(

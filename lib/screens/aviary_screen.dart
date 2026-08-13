@@ -5,6 +5,7 @@ import 'bird_detail_screen.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:hive/hive.dart';
+import 'package:featherflow/data/species_presets.dart';
 
 class AviaryScreen extends StatefulWidget {
   const AviaryScreen({super.key});
@@ -24,9 +25,10 @@ class _AviaryScreenState extends State<AviaryScreen> {
 
   void _showEditDialog(Bird bird) {
     final nameController = TextEditingController(text: bird.name);
-    final speciesController = TextEditingController(text: bird.species);
+    final cageController = TextEditingController(text: bird.cageNumber ?? '');
+    final bandController = TextEditingController(text: bird.bandNumber ?? '');
     String? selectedGender = bird.gender;
-    String? selectedUnit;
+    TextEditingController? speciesController;
     String? pickedImagePath = bird.imagePath;
     DateTime? pickedHatchDate = bird.hatchDate;
     final genders = ['Male', 'Female', 'Unknown'];
@@ -63,7 +65,6 @@ class _AviaryScreenState extends State<AviaryScreen> {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                //here i will add edit bird image
                 GestureDetector(
                   onTap: _pickImage,
                   child: Container(
@@ -115,10 +116,25 @@ class _AviaryScreenState extends State<AviaryScreen> {
                   decoration: const InputDecoration(labelText: 'Name'),
                 ),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: speciesController,
-                  //keyboardType: TextInputType.name,
-                  decoration: const InputDecoration(labelText: 'Species'),
+                Autocomplete<String>(
+                  optionsBuilder: (TextEditingValue value) {
+                    if (value.text.isEmpty) return speciesPresets;
+                    return speciesPresets.where(
+                      (s) => s.toLowerCase().contains(value.text.toLowerCase()),
+                    );
+                  },
+                  fieldViewBuilder:
+                      (context, controller, focusNode, onFieldSubmitted) {
+                        speciesController = controller;
+                        return TextField(
+                          controller: controller,
+                          focusNode: focusNode,
+                          onSubmitted: (value) => onFieldSubmitted(),
+                          decoration: const InputDecoration(
+                            labelText: 'Species',
+                          ),
+                        );
+                      },
                 ),
                 const SizedBox(height: 16),
                 InkWell(
@@ -172,9 +188,10 @@ class _AviaryScreenState extends State<AviaryScreen> {
                 onPressed: () {
                   final birdslist = birdBox.values.toList();
                   int index = birdslist.indexOf(bird);
+                  final speciesText = speciesController?.text.trim() ?? '';
                   Bird updated = Bird(
                     name: nameController.text,
-                    species: speciesController.text,
+                    species: speciesText,
                     hatchDate: pickedHatchDate,
                     gender: selectedGender!,
                     imagePath: pickedImagePath,

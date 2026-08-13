@@ -22,13 +22,15 @@ class BirdAdapter extends TypeAdapter<Bird> {
       hatchDate: fields[5] as DateTime?,
       gender: fields[3] as String,
       imagePath: fields[4] as String?,
+      cageNumber: fields[6] as String?,
+      bandNumber: fields[7] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Bird obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -38,7 +40,11 @@ class BirdAdapter extends TypeAdapter<Bird> {
       ..writeByte(3)
       ..write(obj.gender)
       ..writeByte(4)
-      ..write(obj.imagePath);
+      ..write(obj.imagePath)
+      ..writeByte(6)
+      ..write(obj.cageNumber)
+      ..writeByte(7)
+      ..write(obj.bandNumber);
   }
 
   @override
