@@ -195,6 +195,20 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
                 onChanged: (val) => setState(() => selectedGender = val),
               ),
               const SizedBox(height: 22),
+              TextField(
+                controller: cageController,
+                decoration: const InputDecoration(
+                  labelText: 'Cage number(optional)',
+                ),
+              ),
+              const SizedBox(height: 22),
+              TextField(
+                controller: bandController,
+                decoration: const InputDecoration(
+                  labelText: 'Band number(optional)',
+                ),
+              ),
+              const SizedBox(height: 22),
               //adding return to main menu button
               ElevatedButton(onPressed: saveBird, child: Text('Save data')),
             ],

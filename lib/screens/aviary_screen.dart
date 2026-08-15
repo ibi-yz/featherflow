@@ -117,6 +117,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
                 ),
                 const SizedBox(height: 16),
                 Autocomplete<String>(
+                  initialValue: TextEditingValue(text: bird.species),
                   optionsBuilder: (TextEditingValue value) {
                     if (value.text.isEmpty) return speciesPresets;
                     return speciesPresets.where(
@@ -177,6 +178,20 @@ class _AviaryScreenState extends State<AviaryScreen> {
                   onChanged: (val) =>
                       setDialogState(() => selectedGender = val),
                 ),
+                const SizedBox(height: 22),
+                TextField(
+                  controller: cageController,
+                  decoration: const InputDecoration(
+                    labelText: 'Cage number(optional)',
+                  ),
+                ),
+                const SizedBox(height: 22),
+                TextField(
+                  controller: bandController,
+                  decoration: const InputDecoration(
+                    labelText: 'Band number(optional)',
+                  ),
+                ),
               ],
             ),
             actions: [
@@ -195,6 +210,12 @@ class _AviaryScreenState extends State<AviaryScreen> {
                     hatchDate: pickedHatchDate,
                     gender: selectedGender!,
                     imagePath: pickedImagePath,
+                    cageNumber: cageController.text.trim().isEmpty
+                        ? null
+                        : cageController.text.trim(),
+                    bandNumber: bandController.text.trim().isEmpty
+                        ? null
+                        : bandController.text.trim(),
                   );
                   birdBox.putAt(index, updated);
                   setState(() {});
@@ -220,10 +241,10 @@ class _AviaryScreenState extends State<AviaryScreen> {
             height: 120,
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primaryContainer,
-              borderRadius: const BorderRadius.only(
+              /*borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(24),
                 bottomRight: Radius.circular(24),
-              ),
+              ),*/
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.1),
@@ -283,21 +304,43 @@ class _AviaryScreenState extends State<AviaryScreen> {
                           child: SizedBox(
                             width: double.infinity,
                             height: 220,
-                            child: bird.imagePath != null
-                                ? Image.file(
-                                    File(bird.imagePath!),
-                                    fit: BoxFit.cover,
-                                  )
-                                : Container(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primaryContainer,
-                                    child: Icon(
-                                      Icons.flutter_dash,
-                                      size: 60,
-                                      color: Colors.white,
+                            child: Stack(
+                              children: [
+                                Positioned.fill(
+                                  child: bird.imagePath != null
+                                      ? Image.file(
+                                          File(bird.imagePath!),
+                                          fit: BoxFit.cover,
+                                        )
+                                      : Container(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.primaryContainer,
+                                          child: Icon(
+                                            Icons.flutter_dash,
+                                            size: 60,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                ),
+
+                                if (bird.cageNumber != null ||
+                                    bird.bandNumber != null)
+                                  Positioned(
+                                    top: 8,
+                                    right: 8,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        if (bird.cageNumber != null)
+                                          _buildBadge('Cage', bird.cageNumber!),
+                                        if (bird.bandNumber != null)
+                                          _buildBadge('Band', bird.bandNumber!),
+                                      ],
                                     ),
                                   ),
+                              ],
+                            ),
                           ),
                         ),
 
@@ -344,6 +387,25 @@ class _AviaryScreenState extends State<AviaryScreen> {
           }
         },
         child: Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildBadge(String label, String value) {
+    return Container(
+      margin: EdgeInsets.only(left: 4),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        '$label: $value',
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }

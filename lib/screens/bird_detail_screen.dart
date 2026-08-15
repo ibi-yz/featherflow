@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:featherflow/models/bird.dart';
 import 'dart:io';
+import 'aviary_screen.dart';
 
 class BirdDetailsSheet extends StatelessWidget {
   final Bird bird;
@@ -57,6 +58,17 @@ class BirdDetailsSheet extends StatelessWidget {
               color: ColorScheme.onSurfaceVariant,
             ),
           ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              if (bird.cageNumber != null)
+                _buildBadge(context, 'Cage', bird.cageNumber!),
+              if (bird.bandNumber != null)
+                _buildBadge(context, 'Band', bird.bandNumber!),
+            ],
+          ),
           const SizedBox(height: 24),
           Row(
             children: [
@@ -106,6 +118,24 @@ class BirdDetailsSheet extends StatelessWidget {
       builder: (_) => SizedBox(
         height: MediaQuery.of(context).size.height * 0.75,
         child: BirdDetailsSheet(bird: bird, onDelete: onDelete, onEdit: onEdit),
+      ),
+    );
+  }
+
+  Widget _buildBadge(BuildContext context, label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        '$label: $value',
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
