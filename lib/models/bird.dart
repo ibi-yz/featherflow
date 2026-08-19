@@ -15,13 +15,20 @@ class Bird {
   @HiveField(3)
   final String gender;
   @HiveField(4)
-  String? imagePath;
+  final String? imagePath;
   @HiveField(6)
-  String? cageNumber;
+  final String? cageNumber;
   @HiveField(7)
-  String? bandNumber;
+  final String? bandNumber;
+  @HiveField(8)
+  final String id;
+  @HiveField(9)
+  final String? sireId;
+  @HiveField(10)
+  final String? damId;
 
   Bird({
+    String? id,
     required this.name,
     required this.species,
     this.hatchDate,
@@ -29,7 +36,12 @@ class Bird {
     this.imagePath,
     this.cageNumber,
     this.bandNumber,
-  });
+    this.sireId,
+    this.damId,
+  }) : id =
+           id ??
+           DateTime.now().microsecondsSinceEpoch
+               .toString(); //turns created time to a unique number
 
   String get displayAge {
     if (hatchDate == null) return 'Unknown';

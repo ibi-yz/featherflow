@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:featherflow/models/bird.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:hive/hive.dart';
 
 class AddBirdScreen extends StatefulWidget {
   const AddBirdScreen({super.key});
@@ -21,6 +22,15 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
   String? pickedImagePath;
   final genders = ['Male', 'Female', 'Unknown'];
   DateTime? pickedHatchDate;
+  String? selectedSireId;
+  String? selectedDamId;
+  List<Bird> allBirds = [];
+
+  @override
+  void initState() {
+    super.initState();
+    allBirds = Hive.box<Bird>('Birds').values.toList();
+  }
 
   Future<void> _pickedHatchDate() async {
     final now = DateTime.now();
@@ -75,6 +85,8 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
       bandNumber: bandController.text.trim().isEmpty
           ? null
           : bandController.text.trim(),
+      sireId: selectedSireId,
+      damId: selectedDamId,
     );
     Navigator.pop(context, newBird);
   }
@@ -207,6 +219,46 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Band number(optional)',
                 ),
+              ),
+              const SizedBox(height: 22),
+              DropdownButtonFormField<String>(
+                value: selectedSireId,
+                decoration: const InputDecoration(labelText: 'Sire (Father)'),
+                items: [
+                  const DropdownMenuItem(
+                    value: null,
+                    child: Text('None / Unknown'),
+                  ),
+                  ...allBirds
+                      .where((b) => b.gender == 'Male')
+                      .map(
+                        (b) => DropdownMenuItem(
+                          value: b.id,
+                          child: Text('${b.name} (${b.species})'),
+                        ),
+                      ),
+                ],
+                onChanged: (val) => setState(() => selectedSireId = val),
+              ),
+              const SizedBox(height: 22),
+              DropdownButtonFormField<String>(
+                value: selectedDamId,
+                decoration: const InputDecoration(labelText: 'Dam (Mother)'),
+                items: [
+                  const DropdownMenuItem(
+                    value: null,
+                    child: Text('None / Unknown'),
+                  ),
+                  ...allBirds
+                      .where((b) => b.gender == 'Female')
+                      .map(
+                        (b) => DropdownMenuItem(
+                          value: b.id,
+                          child: Text('${b.name} (${b.species})'),
+                        ),
+                      ),
+                ],
+                onChanged: (val) => setState(() => selectedDamId = val),
               ),
               const SizedBox(height: 22),
               //adding return to main menu button
