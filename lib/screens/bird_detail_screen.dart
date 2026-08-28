@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:featherflow/models/bird.dart';
 import 'dart:io';
 import 'aviary_screen.dart';
+import 'package:hive/hive.dart';
 
 class BirdDetailsSheet extends StatelessWidget {
   final Bird bird;
@@ -19,88 +20,150 @@ class BirdDetailsSheet extends StatelessWidget {
     final TextTheme = Theme.of(context).textTheme;
     final ColorScheme = Theme.of(context).colorScheme;
 
+    final allBirds = Hive.box<Bird>('Birds').values.toList();
+
+    Bird? findBird(String? id) {
+      if (id == null) return null;
+      for (final b in allBirds) {
+        if (b.id == id) return b;
+      }
+      return null;
+    }
+
+    final sire = findBird(bird.sireId);
+    final dam = findBird(bird.sireId);
+    final children = allBirds
+        .where((b) => b.sireId == bird.id || b.damId == bird.id)
+        .toList();
+
     return Padding(
       padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadiusGeometry.circular(24),
-            child: SizedBox(
-              height: 300,
-              width: double.infinity,
-              child: bird.imagePath != null
-                  ? ColoredBox(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
-                      child: Image.file(
-                        File(bird.imagePath!),
-                        fit: BoxFit.contain,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadiusGeometry.circular(24),
+              child: SizedBox(
+                height: 300,
+                width: double.infinity,
+                child: bird.imagePath != null
+                    ? ColoredBox(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
+                        child: Image.file(
+                          File(bird.imagePath!),
+                          fit: BoxFit.contain,
+                        ),
+                      )
+                    : Container(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        child: Icon(
+                          Icons.flutter_dash,
+                          size: 60,
+                          color: Colors.white,
+                        ),
                       ),
-                    )
-                  : Container(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      child: Icon(
-                        Icons.flutter_dash,
-                        size: 60,
-                        color: Colors.white,
-                      ),
-                    ),
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Text(bird.name, style: TextTheme.headlineMedium),
-          Text(
-            '${bird.species} | ${bird.displayAge} | ${bird.gender}',
-            style: TextTheme.bodyMedium?.copyWith(
-              color: ColorScheme.onSurfaceVariant,
+            const SizedBox(height: 16),
+            Text(bird.name, style: TextTheme.headlineMedium),
+            Text(
+              '${bird.species} | ${bird.displayAge} | ${bird.gender}',
+              style: TextTheme.bodyMedium?.copyWith(
+                color: ColorScheme.onSurfaceVariant,
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              if (bird.cageNumber != null)
-                _buildBadge(context, 'Cage', bird.cageNumber!),
-              if (bird.bandNumber != null)
-                _buildBadge(context, 'Band', bird.bandNumber!),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: FilledButton.icon(
-                  onPressed: () {
-                    //later add delete option
-                    Navigator.pop(context);
-                    onDelete();
-                  },
-                  icon: Icon(Icons.delete),
-                  label: Text('Delete'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: ColorScheme.error,
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (bird.cageNumber != null)
+                  _buildBadge(context, 'Cage', bird.cageNumber!),
+                if (bird.bandNumber != null)
+                  _buildBadge(context, 'Band', bird.bandNumber!),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 16),
+            Text(
+              'Lineage',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Sire (Father): ${sire?.name ?? 'Unknown'}',
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Dam (Mother): ${dam?.name ?? 'Unknown'}',
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+            ),
+
+            if (children.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Text(
+                'OffSpring (${children.length})',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              ...children.map(
+                (c) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    '• ${c.name}',
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              const SizedBox(width: 16),
-              Expanded(
-                child: FilledButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    onEdit();
-                  },
-                  label: Text("Edit"),
-                  icon: Icon(Icons.edit),
-                ),
-              ),
             ],
-          ),
-        ],
+
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: () {
+                      //later add delete option
+                      Navigator.pop(context);
+                      onDelete();
+                    },
+                    icon: Icon(Icons.delete),
+                    label: Text('Delete'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: ColorScheme.error,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      onEdit();
+                    },
+                    label: Text("Edit"),
+                    icon: Icon(Icons.edit),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

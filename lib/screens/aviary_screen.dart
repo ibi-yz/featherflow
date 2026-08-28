@@ -32,7 +32,9 @@ class _AviaryScreenState extends State<AviaryScreen> {
     String? pickedImagePath = bird.imagePath;
     DateTime? pickedHatchDate = bird.hatchDate;
     final genders = ['Male', 'Female', 'Unknown'];
-
+    String? selectedSireId = bird.sireId;
+    String? selectedDamId = bird.damId;
+    final allBirds = birdBox.values.toList();
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -192,6 +194,46 @@ class _AviaryScreenState extends State<AviaryScreen> {
                     labelText: 'Band number(optional)',
                   ),
                 ),
+                const SizedBox(height: 22),
+                DropdownButtonFormField<String>(
+                  value: selectedSireId,
+                  decoration: const InputDecoration(labelText: 'Sire (Father)'),
+                  items: [
+                    const DropdownMenuItem(
+                      value: null,
+                      child: Text('None / Unknown'),
+                    ),
+                    ...allBirds
+                        .where((b) => b.id != bird.id && b.gender == 'Male')
+                        .map(
+                          (b) => DropdownMenuItem(
+                            value: b.id,
+                            child: Text('${b.name} (${b.species})'),
+                          ),
+                        ),
+                  ],
+                  onChanged: (val) => setState(() => selectedSireId = val),
+                ),
+                const SizedBox(height: 22),
+                DropdownButtonFormField<String>(
+                  value: selectedDamId,
+                  decoration: const InputDecoration(labelText: 'Dam (Mother)'),
+                  items: [
+                    const DropdownMenuItem(
+                      value: null,
+                      child: Text('None / Unknown'),
+                    ),
+                    ...allBirds
+                        .where((b) => b.id != bird.id && b.gender == 'Female')
+                        .map(
+                          (b) => DropdownMenuItem(
+                            value: b.id,
+                            child: Text('${b.name} (${b.species})'),
+                          ),
+                        ),
+                  ],
+                  onChanged: (val) => setState(() => selectedDamId = val),
+                ),
               ],
             ),
             actions: [
@@ -216,6 +258,9 @@ class _AviaryScreenState extends State<AviaryScreen> {
                     bandNumber: bandController.text.trim().isEmpty
                         ? null
                         : bandController.text.trim(),
+                    id: bird.id,
+                    sireId: selectedSireId,
+                    damId: selectedDamId,
                   );
                   birdBox.putAt(index, updated);
                   setState(() {});
