@@ -316,107 +316,124 @@ class _AviaryScreenState extends State<AviaryScreen> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.only(top: 12),
-              itemCount: birds.length,
-              itemBuilder: (context, index) {
-                final bird = birds[index];
-                return InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () => BirdDetailsSheet.show(
-                    context,
-                    bird: bird,
-                    onDelete: () {
-                      birdBox.deleteAt(index);
-                      setState(() {});
-                    },
-                    onEdit: () {
-                      _showEditDialog(bird);
-                    },
-                  ),
-                  child: Card(
-                    margin: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                    elevation: 1,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    color: Theme.of(context).colorScheme.surfaceContainerLow,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: 220,
-                            child: Stack(
-                              children: [
-                                Positioned.fill(
-                                  child: bird.imagePath != null
-                                      ? Image.file(
-                                          File(bird.imagePath!),
-                                          fit: BoxFit.cover,
-                                        )
-                                      : Container(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.primaryContainer,
-                                          child: Icon(
-                                            Icons.flutter_dash,
-                                            size: 60,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                ),
-
-                                if (bird.cageNumber != null ||
-                                    bird.bandNumber != null)
-                                  Positioned(
-                                    top: 8,
-                                    right: 8,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        if (bird.cageNumber != null)
-                                          _buildBadge('Cage', bird.cageNumber!),
-                                        if (bird.bandNumber != null)
-                                          _buildBadge('Band', bird.bandNumber!),
-                                      ],
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
+            child: birds.isEmpty
+                ? _buildEmptyState(context)
+                : ListView.builder(
+                    padding: EdgeInsets.only(top: 12),
+                    itemCount: birds.length,
+                    itemBuilder: (context, index) {
+                      final bird = birds[index];
+                      return InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () => BirdDetailsSheet.show(
+                          context,
+                          bird: bird,
+                          onDelete: () {
+                            birdBox.deleteAt(index);
+                            setState(() {});
+                          },
+                          onEdit: () {
+                            _showEditDialog(bird);
+                          },
                         ),
-
-                        Padding(
-                          padding: const EdgeInsets.all(16),
+                        child: Card(
+                          margin: EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 8,
+                          ),
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerLow,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                bird.name,
-                                style: Theme.of(context).textTheme.titleLarge,
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  height: 220,
+                                  child: Stack(
+                                    children: [
+                                      Positioned.fill(
+                                        child: bird.imagePath != null
+                                            ? Image.file(
+                                                File(bird.imagePath!),
+                                                fit: BoxFit.cover,
+                                              )
+                                            : Container(
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.primaryContainer,
+                                                child: Icon(
+                                                  Icons.flutter_dash,
+                                                  size: 60,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                      ),
+
+                                      if (bird.cageNumber != null ||
+                                          bird.bandNumber != null)
+                                        Positioned(
+                                          top: 8,
+                                          right: 8,
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              if (bird.cageNumber != null)
+                                                _buildBadge(
+                                                  'Cage',
+                                                  bird.cageNumber!,
+                                                ),
+                                              if (bird.bandNumber != null)
+                                                _buildBadge(
+                                                  'Band',
+                                                  bird.bandNumber!,
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${bird.species} | ${bird.displayAge} | ${bird.gender}',
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(
-                                      color: Theme.of(
+
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      bird.name,
+                                      style: Theme.of(
                                         context,
-                                      ).colorScheme.onSurfaceVariant,
+                                      ).textTheme.titleLarge,
                                     ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '${bird.species} | ${bird.displayAge} | ${bird.gender}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                          ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),
@@ -432,6 +449,65 @@ class _AviaryScreenState extends State<AviaryScreen> {
           }
         },
         child: Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: colorScheme.primary,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.flutter_dash,
+                size: 64,
+                color: colorScheme.onPrimaryContainer,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Your aviary is empty',
+              style: textTheme.headlineSmall,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Add your first bird to start tracking cages,bands, and lineage.',
+              style: textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurface,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: () async {
+                final newBird = await Navigator.push<Bird>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddBirdScreen(),
+                  ),
+                );
+                if (newBird != null) {
+                  birdBox.add(newBird);
+                  setState(() {});
+                }
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Add your first Bird'),
+            ),
+          ],
+        ),
       ),
     );
   }
