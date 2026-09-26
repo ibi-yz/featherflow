@@ -5,6 +5,10 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:hive/hive.dart';
 
+///The screen for adding a new bird to the list
+///
+/// Unlike the edit screen which is a popup, this is a full page/screen
+/// when save is hit, the bird is built and added to the list
 class AddBirdScreen extends StatefulWidget {
   const AddBirdScreen({super.key});
 
@@ -17,21 +21,30 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
   final nameController = TextEditingController();
   final cageController = TextEditingController();
   final bandController = TextEditingController();
+
+  //nullable cuz autocomplete builds it later
   TextEditingController? speciesController;
+  //variables that hold users selected choices. names speak for themselves.
   String? selectedGender;
   String? pickedImagePath;
   final genders = ['Male', 'Female', 'Unknown'];
   DateTime? pickedHatchDate;
+
+  //lineage state
   String? selectedSireId;
   String? selectedDamId;
+
+  //lsit of existing birds to populate the parents dropdowns.
   List<Bird> allBirds = [];
 
   @override
   void initState() {
     super.initState();
+    //grab a snapshot of all birds so we can pick the parents from them
     allBirds = Hive.box<Bird>('Birds').values.toList();
   }
 
+  //pops up the calender so user can selected the date of birth for birdy
   Future<void> _pickedHatchDate() async {
     final now = DateTime.now();
     final picked = await showDatePicker(
@@ -54,6 +67,7 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
     super.dispose();
   }
 
+  //opens the phone gallery so user can select a pic of their cute birdy
   Future<void> _pickImage() async {
     final XFile? image = await ImagePicker().pickImage(
       source: ImageSource.gallery,
@@ -63,7 +77,9 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
     }
   }
 
+  //validates and saves the bird
   void saveBird() {
+    //validation: check if required fields are blank and if the user has entered extra spaces .trim deals with them
     final speciesText = speciesController?.text.trim() ?? '';
     if (nameController.text.trim().isEmpty ||
         speciesText.isEmpty ||
@@ -79,6 +95,7 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
       gender: selectedGender!,
       imagePath: pickedImagePath,
       hatchDate: pickedHatchDate,
+      // If optional text fields are empty, save null instead of an empty string
       cageNumber: cageController.text.trim().isEmpty
           ? null
           : cageController.text.trim(),
@@ -88,6 +105,7 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
       sireId: selectedSireId,
       damId: selectedDamId,
     );
+    //closes the screen and pushes back to main aviary screen
     Navigator.pop(context, newBird);
   }
 
@@ -97,9 +115,11 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
       appBar: AppBar(title: Text('Add new Bird')),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
+        //singlechildscrollview so the keyboard doesent hide the bottom text fields.
         child: SingleChildScrollView(
           child: Column(
             children: [
+              //IMAGE PICKER
               GestureDetector(
                 onTap: _pickImage,
                 child: Container(
@@ -143,11 +163,13 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
                 ),
               ),
               const SizedBox(height: 16),
+              //BASIC INFO FIELDS
               TextField(
                 controller: nameController,
                 decoration: const InputDecoration(labelText: 'Name:'),
               ),
               const SizedBox(height: 22),
+              //Autocomplete suggests species as user types to prevent typos from a generous list in species_presets.dart
               Autocomplete<String>(
                 optionsBuilder: (TextEditingValue value) {
                   if (value.text.isEmpty) return speciesPresets;
@@ -167,6 +189,7 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
                     },
               ),
               const SizedBox(height: 22),
+              //HATCHDATE
               InkWell(
                 onTap: _pickedHatchDate,
                 borderRadius: BorderRadius.circular(16),
@@ -198,6 +221,7 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
                 ),
               ),
               const SizedBox(height: 22),
+              //HAtch date and other stuff
               DropdownButtonFormField<String>(
                 value: selectedGender,
                 decoration: const InputDecoration(labelText: 'Gender'),
@@ -221,6 +245,8 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
                 ),
               ),
               const SizedBox(height: 22),
+
+              //Lineage selection dropdowns
               DropdownButtonFormField<String>(
                 value: selectedSireId,
                 decoration: const InputDecoration(labelText: 'Sire (Father)'),
@@ -229,6 +255,7 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
                     value: null,
                     child: Text('None / Unknown'),
                   ),
+                  // FILTER: only show male birds
                   ...allBirds
                       .where((b) => b.gender == 'Male')
                       .map(
@@ -249,6 +276,7 @@ class _AddBirdScreenState extends State<AddBirdScreen> {
                     value: null,
                     child: Text('None / Unknown'),
                   ),
+                  // FILTER: only show female birds
                   ...allBirds
                       .where((b) => b.gender == 'Female')
                       .map(
