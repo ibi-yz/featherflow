@@ -4,6 +4,11 @@ import 'dart:io';
 import 'aviary_screen.dart';
 import 'package:hive/hive.dart';
 
+/// A bottom sheet that shows all the detailed info for the selected bird
+///
+/// its a stateless widget cuz it only shows the data passed to it
+/// its got the bird pic, cage/band abdges, and the lineage
+
 class BirdDetailsSheet extends StatelessWidget {
   final Bird bird;
   final VoidCallback onDelete;
@@ -19,9 +24,9 @@ class BirdDetailsSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextTheme = Theme.of(context).textTheme;
     final ColorScheme = Theme.of(context).colorScheme;
-
+    //load all the birds into memory so they can be searched through for the lineage
     final allBirds = Hive.box<Bird>('Birds').values.toList();
-
+    //searches through the aviary with the provided ID and return the full matching bird object
     Bird? findBird(String? id) {
       if (id == null) return null;
       for (final b in allBirds) {
@@ -30,14 +35,16 @@ class BirdDetailsSheet extends StatelessWidget {
       return null;
     }
 
+    // resolve the parents
     final sire = findBird(bird.sireId);
-    final dam = findBird(bird.sireId);
+    final dam = findBird(bird.damId);
     final children = allBirds
         .where((b) => b.sireId == bird.id || b.damId == bird.id)
         .toList();
 
     return Padding(
       padding: const EdgeInsets.all(24),
+      //Single child scroll view stops the overflow errorr
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -90,6 +97,7 @@ class BirdDetailsSheet extends StatelessWidget {
             const SizedBox(height: 16),
             const Divider(),
             const SizedBox(height: 16),
+            //lineage text section
             Text(
               'Lineage',
               style: Theme.of(
@@ -97,6 +105,8 @@ class BirdDetailsSheet extends StatelessWidget {
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
+            //?.name means 'try to grab the name if it exits'
+            //otherwise output unknown so it doesent crash
             Text(
               'Sire (Father): ${sire?.name ?? 'Unknown'}',
               style: Theme.of(
@@ -120,6 +130,7 @@ class BirdDetailsSheet extends StatelessWidget {
                 ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
+              //map builds only one text widget per baby then unpcks them into list
               ...children.map(
                 (c) => Padding(
                   padding: const EdgeInsets.only(bottom: 4),
@@ -168,6 +179,7 @@ class BirdDetailsSheet extends StatelessWidget {
     );
   }
 
+  //Static method so the main aviary screen can call for it like a pop up function
   static void show(
     BuildContext context, {
     required Bird bird,
@@ -185,6 +197,7 @@ class BirdDetailsSheet extends StatelessWidget {
     );
   }
 
+  //builds the cage/band badges
   Widget _buildBadge(BuildContext context, label, String value) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
