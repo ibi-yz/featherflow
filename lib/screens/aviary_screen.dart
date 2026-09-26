@@ -7,6 +7,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:hive/hive.dart';
 import 'package:featherflow/data/species_presets.dart';
 
+/// The main dashboard screen
+///
+/// This 'AviaryScreen' and it dispalys the list of birds in local hive database
+/// and provides access to the ADD, EDIT and BIRD ADDITIONAL DISPLAY views.
+
 class AviaryScreen extends StatefulWidget {
   const AviaryScreen({super.key});
 
@@ -20,10 +25,17 @@ class _AviaryScreenState extends State<AviaryScreen> {
   @override
   void initState() {
     super.initState();
+    //Grab the already loaded Hive Box. We dont load it here cuz
+    //the main.dart handles the async initialization before the app starts
     birdBox = Hive.box<Bird>('Birds');
   }
 
+  ///Opens the Edit bird menu for an existing bird
+  ///
+  /// The builder is dialog is wrapped in a StatefulBuilder because a standard AlertDialog is Stateless. Without it, picking a
+  /// new date or choosin a parent form the dropdown wont work as nothing would be updated visually untill the dialog is closed and reopened.
   void _showEditDialog(Bird bird) {
+    //The Controllers are assigned already existing bird data
     final nameController = TextEditingController(text: bird.name);
     final cageController = TextEditingController(text: bird.cageNumber ?? '');
     final bandController = TextEditingController(text: bird.bandNumber ?? '');
@@ -32,18 +44,22 @@ class _AviaryScreenState extends State<AviaryScreen> {
     String? pickedImagePath = bird.imagePath;
     DateTime? pickedHatchDate = bird.hatchDate;
     final genders = ['Male', 'Female', 'Unknown'];
+    //Lineage state
     String? selectedSireId = bird.sireId;
     String? selectedDamId = bird.damId;
+    //this is the snapshot of all birds for the parents dropdown
     final allBirds = birdBox.values.toList();
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
+          //checks if new image has been selected
           Future<void> _pickImage() async {
             final XFile? image = await ImagePicker().pickImage(
               source: ImageSource.gallery,
             );
             if (image != null) {
+              //Used setDialogSTate so only ehe dialog rebuilds in place of setState
               setDialogState(() => pickedImagePath = image.path);
             }
           }
@@ -67,6 +83,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                //Image selector
                 GestureDetector(
                   onTap: _pickImage,
                   child: Container(
@@ -111,6 +128,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
                           ),
                   ),
                 ),
+                //BASIC INPUT FIELDS
                 const SizedBox(height: 16),
                 TextField(
                   controller: nameController,
@@ -118,6 +136,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
                   decoration: const InputDecoration(labelText: 'Name'),
                 ),
                 const SizedBox(height: 16),
+                // Autocomplete suggests species as user types to prevent typos
                 Autocomplete<String>(
                   initialValue: TextEditingValue(text: bird.species),
                   optionsBuilder: (TextEditingValue value) {
@@ -140,6 +159,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
                       },
                 ),
                 const SizedBox(height: 16),
+                //HATCHDATE
                 InkWell(
                   onTap: _pickedHatchDate,
                   borderRadius: BorderRadius.circular(16),
@@ -171,6 +191,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+                //GENDER AND ADDITIONAL DATA
                 DropdownButtonFormField<String>(
                   value: selectedGender,
                   decoration: const InputDecoration(labelText: 'Gender'),
@@ -194,6 +215,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
                     labelText: 'Band number(optional)',
                   ),
                 ),
+                //LINEAGE SELECTION DROPDOWNS
                 const SizedBox(height: 22),
                 DropdownButtonFormField<String>(
                   value: selectedSireId,
@@ -203,6 +225,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
                       value: null,
                       child: Text('None / Unknown'),
                     ),
+                    //FILTER: must be male and bird cannot be its own father
                     ...allBirds
                         .where((b) => b.id != bird.id && b.gender == 'Male')
                         .map(
@@ -222,6 +245,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
                     const DropdownMenuItem(
                       value: null,
                       child: Text('None / Unknown'),
+                      //FILTER: must be female and bird cannot be its own mother
                     ),
                     ...allBirds
                         .where((b) => b.id != bird.id && b.gender == 'Female')
@@ -243,6 +267,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
               ),
               FilledButton(
                 onPressed: () {
+                  //birds current index is found and ovrwritten to update hive
                   final birdslist = birdBox.values.toList();
                   int index = birdslist.indexOf(bird);
                   final speciesText = speciesController?.text.trim() ?? '';
@@ -258,11 +283,13 @@ class _AviaryScreenState extends State<AviaryScreen> {
                     bandNumber: bandController.text.trim().isEmpty
                         ? null
                         : bandController.text.trim(),
+                    //Ensures the ID doesent changes so lineage doesent break
                     id: bird.id,
                     sireId: selectedSireId,
                     damId: selectedDamId,
                   );
                   birdBox.putAt(index, updated);
+                  //Rebuild the main background sceen to show the updated data
                   setState(() {});
                   Navigator.pop(context);
                 },
@@ -275,12 +302,18 @@ class _AviaryScreenState extends State<AviaryScreen> {
     );
   }
 
+  ///Builds the main aviary list
+  ///
+  ///uses an expanded widget so the list takes up the whole of screeen
+  /// below the header. This is crucial so the ListView knows its limits and can scroll properly
+
   @override
   Widget build(BuildContext context) {
     final birds = birdBox.values.toList();
     return Scaffold(
       body: Column(
         children: [
+          //CUSTOM HEADER
           Container(
             width: double.infinity,
             height: 120,
@@ -315,7 +348,9 @@ class _AviaryScreenState extends State<AviaryScreen> {
               ),
             ),
           ),
+          // checks if bird or empty list
           Expanded(
+            //if database is empty itll show the welcome screen otherwise the list of birds will be shown.
             child: birds.isEmpty
                 ? _buildEmptyState(context)
                 : ListView.builder(
@@ -351,6 +386,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              //BIRD IMAGE AND BADGES
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(16),
                                 child: SizedBox(
@@ -375,7 +411,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
                                                 ),
                                               ),
                                       ),
-
+                                      //overlay the badges if cage/band data exists
                                       if (bird.cageNumber != null ||
                                           bird.bandNumber != null)
                                         Positioned(
@@ -401,7 +437,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
                                   ),
                                 ),
                               ),
-
+                              //BIRD TEXT DATA
                               Padding(
                                 padding: const EdgeInsets.all(16),
                                 child: Column(
@@ -439,6 +475,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+          //Wait for the add bird screen to close and return the new bird object
           final newBird = await Navigator.push<Bird>(
             context,
             MaterialPageRoute(builder: (context) => const AddBirdScreen()),
@@ -453,6 +490,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
     );
   }
 
+  /// Builds the Welcome screen
   Widget _buildEmptyState(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
@@ -512,6 +550,7 @@ class _AviaryScreenState extends State<AviaryScreen> {
     );
   }
 
+  //aides in building the small pill badges over the bird image.
   Widget _buildBadge(String label, String value) {
     return Container(
       margin: EdgeInsets.only(left: 4),
