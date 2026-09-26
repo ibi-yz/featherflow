@@ -5,6 +5,9 @@ import 'theme.dart';
 import 'screens/aviary_screen.dart';
 import 'package:hive/hive.dart';
 
+///The entry point of the main app
+///
+///sets up the local database even before the ui loads
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
@@ -13,7 +16,7 @@ void main() async {
   runApp(const MyApp());
 }
 
-//stateless widget ibi, this is main thingy which contains materialapp which is concrete base
+//stateless widget, this is main thingy which contains materialapp which is concrete base
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -25,6 +28,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: theme.light(),
       darkTheme: theme.dark(),
+      //sets main screen as aviaryscreen
       home: AviaryScreen(),
     );
   }
